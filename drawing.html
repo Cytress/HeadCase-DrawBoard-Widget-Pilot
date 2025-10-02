@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Drawing Board</title>
+  <style>
+    body { display: flex; flex-direction: column; align-items: center; font-family: sans-serif; }
+    #board { border: 2px solid #444; border-radius: 8px; cursor: crosshair; }
+    button { margin-top: 10px; padding: 6px 12px; border: none; background: #0077cc; color: white; border-radius: 4px; cursor: pointer; }
+    button:hover { background: #005fa3; }
+  </style>
+</head>
+<body>
+  <h2>Draw Here</h2>
+  <canvas id="board" width="400" height="300"></canvas>
+  <button onclick="clearBoard()">Clear</button>
+  <button onclick="saveImage()">Attach Drawing to Tally</button>
+
+  <script>
+    const canvas = document.getElementById('board');
+    const ctx = canvas.getContext('2d');
+    let drawing = false;
+
+    canvas.addEventListener('mousedown', startDraw);
+    canvas.addEventListener('mouseup', endDraw);
+    canvas.addEventListener('mousemove', draw);
+
+    function startDraw(e) {
+      drawing = true;
+      draw(e);
+    }
+
+    function endDraw() {
+      drawing = false;
+      ctx.beginPath();
+    }
+
+    function draw(e) {
+      if (!drawing) return;
+      ctx.lineWidth = 3;
+      ctx.lineCap = 'round';
+      ctx.strokeStyle = '#000';
+
+      ctx.lineTo(e.offsetX, e.offsetY);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(e.offsetX, e.offsetY);
+    }
+
+    function clearBoard() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    // Export the drawing to Tally
+    function saveImage() {
+      const dataURL = canvas.toDataURL('image/png'); // Base64 PNG
+      window.parent.postMessage({ drawingData: dataURL }, '*');
+      alert("✅ Drawing attached! Submit the form now.");
+    }
+  </script>
+</body>
+</html>
